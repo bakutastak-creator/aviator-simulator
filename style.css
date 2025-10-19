@@ -1,65 +1,91 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #87ceeb, #ffffff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Verdana', sans-serif;
+  background: linear-gradient(to top, #87ceeb, #ccefff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .container {
-    text-align: center;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 0 30px rgba(0,0,0,0.2);
-    max-width: 400px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.3);
+  width: 400px;
+  position: relative;
 }
 
 h1 {
-    margin-bottom: 30px;
-    color: #333;
-    font-family: 'Verdana', sans-serif;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 28px;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
 }
 
 .buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .game-btn {
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    background-color: #ffcc00;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform 0.2s, background 0.2s;
-    box-shadow: 0 5px #b38f00;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  background: linear-gradient(45deg, #ffcc00, #ff9900);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 5px #b38f00;
 }
 
 .game-btn:hover {
-    transform: translateY(-3px);
-    background-color: #ffd633;
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px #b38f00;
 }
 
 .game-btn:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px #b38f00;
+  transform: translateY(2px);
+  box-shadow: 0 3px #b38f00;
 }
 
 .result {
-    font-size: 20px;
-    margin: 20px 0;
-    min-height: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 20px 0;
+  min-height: 40px;
+}
+
+.result .multiplier {
+  color: #ff4d4d;
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 1px 1px 6px #fff, 2px 2px 10px #ff4d4d;
+}
+
+#plane {
+  position: absolute;
+  top: 150px;
+  left: -50px;
+  font-size: 32px;
+  display: none;
+  animation: fly 3s linear forwards;
+}
+
+@keyframes fly {
+  0% { left: -50px; top: 150px; transform: rotate(0deg); }
+  50% { top: 50px; transform: rotate(15deg); }
+  100% { left: 450px; top: 20px; transform: rotate(0deg); }
 }
 
 .note {
-    font-size: 12px;
-    color: #555;
-    margin-top: 20px;
+  font-size: 12px;
+  color: #555;
+  margin-top: 20px;
 }
