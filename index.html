@@ -3,119 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulator</title>
+<title>Aviator Signal Predictor</title>
 <style>
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #121212;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    flex-direction: column;
-    gap: 50px;
-  }
-
-  button {
-    background-color: #1f1f1f;
-    color: #fff;
-    border: none;
-    padding: 25px 70px;
-    font-size: 26px;
-    cursor: pointer;
-    border-radius: 16px;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    min-width: 220px;
-    box-shadow: 0 5px 15px rgba(0,255,204,0.2);
-  }
-
-  button:hover {
-    background-color: #2a2a2a;
-    box-shadow: 0 0 25px #00ffcc, 0 0 50px #00ffcc;
-  }
-
-  button:active {
-    transform: translateY(2px);
-    box-shadow: 0 4px 15px #00ffcc;
-  }
-
-  button.loading {
-    box-shadow: 0 0 30px #00ffcc, 0 0 60px #00ffcc;
-  }
-
-  .loader {
-    border: 4px solid rgba(255,255,255,0.2);
-    border-top: 4px solid #00ffcc;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
-    box-shadow: 0 0 15px #00ffcc, 0 0 25px #00ffcc inset;
-  }
-
-  .loader.active {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    animation: spin 1s linear infinite, float 2s ease-in-out infinite, glow 1.5s ease-in-out infinite;
-  }
-
-  @keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg) scale(1);}
-    100% { transform: translate(-50%, -50%) rotate(360deg) scale(1);}
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translate(-50%, -50%) translateY(0) scale(1); }
-    50% { transform: translate(-50%, -50%) translateY(-8px) scale(1.05); }
-  }
-
-  @keyframes glow {
-    0%, 100% { box-shadow: 0 0 15px #00ffcc, 0 0 25px #00ffcc inset; }
-    50% { box-shadow: 0 0 30px #00ffcc, 0 0 50px #00ffcc inset; }
-  }
+body{
+  font-family:Montserrat,Arial,sans-serif;
+  background:#121212;color:#fff;
+  margin:0;min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+}
+.game-container{
+  width:100%;max-width:600px;
+  background:#1e1e1e;border-radius:15px;
+  padding:25px;box-shadow:0 10px 30px rgba(0,0,0,.3);
+  text-align:center;
+}
+h1{color:#ffcc00;margin-bottom:20px}
+.aviator-display{
+  height:200px;background:#2a2a2a;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin:20px 0;
+}
+.multiplier{font-size:48px;font-weight:600;color:#00cc66}
+.history-container{
+  background:#2a2a2a;border-radius:10px;
+  padding:10px;max-height:110px;overflow-y:auto;margin-bottom:20px;
+}
+.history{display:flex;flex-direction:column;gap:8px}
+.history-item{
+  display:flex;justify-content:space-between;
+  padding:10px;border-radius:8px;
+  background:rgba(255,204,0,.1);border-left:4px solid #ffcc00;
+}
+.history-multiplier{color:#ffcc00;font-weight:600}
+.success{color:#00cc66}.fail{color:#ff4444}
+button{
+  background:#ffcc00;border:none;border-radius:8px;
+  padding:14px 30px;font-weight:600;
+  cursor:pointer;width:200px;
+}
+input{
+  background:#333;border:none;border-radius:8px;
+  padding:10px 20px;color:#fff;width:200px;text-align:center;
+}
+.hidden{display:none}
+.id-form{display:flex;flex-direction:column;align-items:center;gap:15px;margin-bottom:25px}
+.error-message{height:18px;color:#ff4444;font-size:14px}
 </style>
 </head>
 <body>
+<div class="game-container">
+<h1>Aviator Signal Predictor</h1>
 
-  <button id="predictBtn">
-    Predict
-    <div class="loader" id="predictLoader"></div>
-  </button>
+<div class="id-form" id="id-form">
+  <label>Enter YOUR ID</label>
+  <input id="user-id" pattern="\d{8,}" placeholder="Your ID" required>
+  <div class="error-message" id="error-message"></div>
+  <button id="verify-btn">Verify ID</button>
+</div>
 
-  <button id="spinBtn">
-    Spin
-    <div class="loader" id="spinLoader"></div>
-  </button>
+<div id="game-content" class="hidden">
+  <div class="aviator-display">
+    <div class="multiplier" id="multiplier">GET SIGNAL</div>
+  </div>
+
+  <div class="history-container">
+    <div class="history" id="history"></div>
+  </div>
+
+  <button id="predict-btn">Get Signal</button>
+</div>
+</div>
 
 <script>
-function setupButton(btnId, loaderId) {
-  const btn = document.getElementById(btnId);
-  const loader = document.getElementById(loaderId);
+const idForm=document.getElementById('id-form');
+const gameContent=document.getElementById('game-content');
+const userId=document.getElementById('user-id');
+const verifyBtn=document.getElementById('verify-btn');
+const errorMsg=document.getElementById('error-message');
+const multiplier=document.getElementById('multiplier');
+const history=document.getElementById('history');
+const predictBtn=document.getElementById('predict-btn');
 
-  btn.addEventListener('click', () => {
-    loader.classList.add('active');
-    btn.classList.add('loading');
-    btn.disabled = true;
+const MIN_X=1.00;
+const MAX_X=2.05;
+let running=false;
+let lastPrediction=null;
 
-    setTimeout(() => {
-      loader.classList.remove('active');
-      btn.classList.remove('loading');
-      btn.disabled = false;
-      alert(`${btn.innerText} ready!`);
-    }, 2000);
-  });
+verifyBtn.onclick=()=>{
+  if(userId.validity.valid){
+    idForm.classList.add('hidden');
+    gameContent.classList.remove('hidden');
+    errorMsg.textContent='';
+  }else{
+    errorMsg.textContent='ID must be at least 8 digits';
+  }
+};
+userId.oninput=()=>{
+  userId.value=userId.value.replace(/\D/g,'');
+  errorMsg.textContent='';
+};
+
+function rand(min,max){
+  return +(min+Math.random()*(max-min)).toFixed(2);
 }
 
-setupButton('predictBtn', 'predictLoader');
-setupButton('spinBtn', 'spinLoader');
+// varied distribution above 1.00x
+function generatePrediction(){
+  const r=Math.random();
+  if(r<0.35) return rand(1.00,1.30);
+  if(r<0.65) return rand(1.31,1.60);
+  if(r<0.85) return rand(1.61,1.85);
+  return rand(1.86,2.05);
+}
+
+predictBtn.onclick=()=>{
+  if(running) return;
+  running=true;
+  predictBtn.disabled=true;
+  predictBtn.textContent='AI Analysing...';
+
+  let prediction=generatePrediction();
+  if(lastPrediction!==null && Math.abs(prediction-lastPrediction)<0.12){
+    prediction=generatePrediction();
+  }
+  lastPrediction=prediction;
+
+  const crash=rand(prediction+0.05,MAX_X);
+
+  const start=performance.now();
+  const duration=900;
+
+  function anim(t){
+    const p=Math.min(1,(t-start)/duration);
+    const current=+(MIN_X+p*(MAX_X-MIN_X)).toFixed(2);
+    multiplier.textContent=current.toFixed(2)+' x';
+    if(current>=prediction) multiplier.style.color='#ffcc00';
+
+    if(current>=crash || p>=1){
+      multiplier.textContent=prediction.toFixed(2)+' x';
+      multiplier.style.color='#00cc66';
+      addHistory(prediction,crash);
+      predictBtn.disabled=false;
+      predictBtn.textContent='Get Signal';
+      running=false;
+      return;
+    }
+    requestAnimationFrame(anim);
+  }
+  requestAnimationFrame(anim);
+};
+
+function addHistory(p,c){
+  const div=document.createElement('div');
+  div.className='history-item';
+  div.innerHTML=`<span class="history-multiplier">${p.toFixed(2)}x</span>
+                 <span class="success">CASH OUT</span>`;
+  history.prepend(div);
+}
 </script>
 </body>
 </html>
